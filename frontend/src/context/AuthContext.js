@@ -1,38 +1,26 @@
-// Replace your entire src/context/AuthContext.js with:
-
-import React, { createContext, useContext, useState } from "react";
+// src/context/AuthContext.js
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('user');
+    return saved ? JSON.parse(saved) : null;
+  });
 
-  const register = async (email, password) => {
-    // Your registration logic here, e.g., call your backend API
-    // This is a dummy example:
-    try {
-      // simulate backend call
-      const newUser = { email };
-      setUser(newUser);
-      return newUser;
-    } catch (error) {
-      throw new Error("Registration failed");
-    }
-  };
-
-  const login = async (email, password) => {
-    // Your login logic here
-    const loggedInUser = { email };
-    setUser(loggedInUser);
-    return loggedInUser;
+  const login = (userData) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, register, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
